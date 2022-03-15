@@ -10,7 +10,7 @@ import pandas as pd
 strategies = ['basic', 'double_on_7or8', 'stand_on_sixteen']
 
 df = pd.DataFrame(
-    columns=['bankroll', 'starting_hand', 'num_hits', 'strategy'])
+    columns=['bankroll', 'hand_value', 'num_hits', 'strategy', 'won_hand'])
 
 
 class Game():
@@ -65,6 +65,7 @@ class Game():
 
     def play_round(self, strat, df):
         num_hits = 0
+        won_hand = False
         """ play out each player & dealer's hand.
             give out rewards. """
         for player in self.players:
@@ -138,6 +139,7 @@ class Game():
                         print "%s wins $%s!" % (player.name, player.bet)
                         player.bankroll += player.bet
                         self.dealer.bankroll -= player.bet
+                        won_hand = True
 
                     elif player.hand.value() < self.dealer.hand.value():
                         print "%s loses $%s." % (player.name, player.bet)
@@ -148,7 +150,7 @@ class Game():
 
                     print("Your bankroll is now: %s" % player.bankroll)
                     df.loc[len(df.index)] = [player.bankroll,
-                                             player.hand.cards, num_hits, strat]
+                                             player.hand.value(), num_hits, strat, won_hand]
 
     def end_round(self):
         """ reset player bets, cards and check if game continues """
@@ -173,6 +175,7 @@ def main():
             game.end_round()
 
         print(df)
+        df.to_csv('simulation.csv')
         # plt.scatter(df.index, df['bankroll'])
         # plt.xlabel("num_games")
         # plt.ylabel(strat)
