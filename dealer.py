@@ -16,5 +16,3 @@ class Dealer(Player):
 
     def __str__(self):
         return "Dealer"
-
-

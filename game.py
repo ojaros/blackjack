@@ -4,6 +4,14 @@ from dealer import Dealer
 from deck import Deck
 from player import Player
 
+import matplotlib.pyplot as plt
+import pandas as pd
+
+df = pd.DataFrame(columns=['bankroll'])
+
+strategies = ['basic', 'basic', 'basic']
+
+
 class Game():
     def __init__(self):
         self.deck = Deck()
@@ -11,24 +19,22 @@ class Game():
         self.players = []
 
         while True:
-            try:
-                num_players = int(raw_input('Enter number of players (1-6): '))
-            except ValueError:
-                continue
+
+            # only need one player for our purposes
+            num_players = 1
 
             if num_players < 1 or num_players > 6:
                 print "Invalid number of players"
                 continue
 
             for i in range(num_players):
-                name = raw_input('Enter name of player %d: ' % (i + 1))
-                bankroll = random.choice(range(100, 1001, 100))
+                name = 'Gambler'
+                bankroll = random.choice(range(100000, 100001, 1))
 
                 self.players.append(Player(name, bankroll))
 
                 print "Welcome %s, you have a starting bankroll of $%s" % (name, bankroll)
             break
-
 
         self.dealer = Dealer()
 
@@ -39,24 +45,9 @@ class Game():
 
         for player in self.players:
             if player.bankroll > 0:
-                while True:
-                    try:
-                        player.bet = int(raw_input("%s: Your bankroll is $%s. Enter your bet: " % (player.name, player.bankroll)))
-                    except ValueError:
-                        continue
-
-                    if player.bet <= 0:
-                        # abort the game.
-                        player.bet = 0
-                        break
-
-                    if player.bet <= player.bankroll:
-                        break
-
-                    print "Your bet cannot be larger than %s" % (player.bankroll)
+                player.bet = 50
             else:
                 print "%s you have no more bankroll" % (player.name)
-
 
         for i in range(2):
             for player in self.players:
@@ -71,14 +62,12 @@ class Game():
 
         print "Dealer - %s, [face down card]" % (self.dealer.hand.cards[0])
 
-
-    def play_round(self):
+    def play_round(self, strat):
         """ play out each player & dealer's hand.
             give out rewards. """
-
         for player in self.players:
             while player.bet and not player.is_bust():
-                move = player.play_hand(self.dealer.hand.cards[0])
+                move = player.play_hand(self.dealer.hand.cards[0], strat)
 
                 if move in ['hit', 'double']:
                     if move == 'double':
@@ -106,8 +95,6 @@ class Game():
 
                         print "Sorry %s, you busted! %s . Your bankroll is now $%s" % (player.name, player.hand, player.bankroll)
                         break
-
-
 
                 elif move == 'stand':
                     break
@@ -156,6 +143,9 @@ class Game():
                     else:
                         print "%s splits with the dealer." % (player.name)
 
+                    print("Your bankroll is now: %s" % player.bankroll)
+                    df.loc[len(df.index)] = [player.bankroll]
+
     def end_round(self):
         """ reset player bets, cards and check if game continues """
         # reset round.
@@ -166,28 +156,24 @@ class Game():
         self.dealer.hand.cards = []
 
 
-        while True:
-            move = raw_input('Keep Going? (y/n): ').lower()
-
-            if move.startswith('y'):
-                return True
-            elif move.startswith('n'):
-                return False
-
-
 def main():
-    print ">>> Welcome to V's Blackjack Table. Advice is given out for free <<< \n"
+    print ">>> Welcome to Oliver and Matt's Blackjack Table. Advice is given out for free <<< \n"
 
     game = Game()
 
-    while True:
+    # instead of taking user input to keep goin, run 1000 times
+    for i in range(100):
         game.start_round()
-        game.play_round()
-        keep_going = game.end_round()
+        game.play_round('basic')
+        game.end_round()
 
-        if not keep_going:
-            break
-    print "\n>>> Thanks for playing at V\'s Casino! <<<"
+    print(df)
+    plt.scatter(df.index, df['bankroll'])
+    plt.xlabel("num_games")
+    plt.ylabel("bankroll")
+    plt.show()
+
+    print "\n>>> Thanks for playing at Oliver and Matt\'s Casino! <<<"
 
 
 if __name__ == '__main__':
