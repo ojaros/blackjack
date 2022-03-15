@@ -54,7 +54,7 @@ def basic_strategy(player_total, dealer_value, soft):
             return 'stand'
 
 
-def double_on_seven_or_8(player_total, dealer_value, soft):
+def double_on_7or8(player_total, dealer_value, soft):
     """ This is a deviation of Blackjack's
         basic strategy. In this deviation, we will
         double on seven or 8 if dealer is showing a six. """

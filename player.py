@@ -1,5 +1,5 @@
 from hand import Hand
-from strategy import basic_strategy
+from strategy import basic_strategy, double_on_7or8, stand_on_sixteen
 
 
 class Player():
@@ -13,6 +13,12 @@ class Player():
         while True:
             if strat == 'basic':
                 recommend = basic_strategy(
+                    self.hand.value(), dealer_card.value(), self.hand.is_soft())
+            elif strat == 'double_on_7or8':
+                recommend = double_on_7or8(
+                    self.hand.value(), dealer_card.value(), self.hand.is_soft())
+            elif strat == 'stand_on_sixteen':
+                recommend = stand_on_sixteen(
                     self.hand.value(), dealer_card.value(), self.hand.is_soft())
 
             if len(self.hand.cards) == 2:

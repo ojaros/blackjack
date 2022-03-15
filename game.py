@@ -7,9 +7,7 @@ from player import Player
 import matplotlib.pyplot as plt
 import pandas as pd
 
-df = pd.DataFrame(columns=['bankroll'])
-
-strategies = ['basic', 'basic', 'basic']
+strategies = ['basic', 'double_on_7or8', 'stand_on_sixteen']
 
 
 class Game():
@@ -62,7 +60,8 @@ class Game():
 
         print "Dealer - %s, [face down card]" % (self.dealer.hand.cards[0])
 
-    def play_round(self, strat):
+    def play_round(self, strat, df):
+        num_hits = 0
         """ play out each player & dealer's hand.
             give out rewards. """
         for player in self.players:
@@ -70,6 +69,7 @@ class Game():
                 move = player.play_hand(self.dealer.hand.cards[0], strat)
 
                 if move in ['hit', 'double']:
+                    num_hits += 1
                     if move == 'double':
                         if len(player.hand.cards) != 2:
                             print 'You cannot double now!'
@@ -144,7 +144,8 @@ class Game():
                         print "%s splits with the dealer." % (player.name)
 
                     print("Your bankroll is now: %s" % player.bankroll)
-                    df.loc[len(df.index)] = [player.bankroll]
+                    df.loc[len(df.index)] = [player.bankroll,
+                                             player.hand.cards, num_hits]
 
     def end_round(self):
         """ reset player bets, cards and check if game continues """
@@ -158,22 +159,25 @@ class Game():
 
 def main():
     print ">>> Welcome to Oliver and Matt's Blackjack Table. Advice is given out for free <<< \n"
+    for strat in strategies:
+        print(strat)
+        df = pd.DataFrame(columns=['bankroll', 'starting_hand', 'num_hits'])
 
-    game = Game()
+        game = Game()
 
-    # instead of taking user input to keep goin, run 1000 times
-    for i in range(100):
-        game.start_round()
-        game.play_round('basic')
-        game.end_round()
+        # instead of taking user input to keep goin, run 1000 times
+        for i in range(100):
+            game.start_round()
+            game.play_round(strat, df)
+            game.end_round()
 
-    print(df)
-    plt.scatter(df.index, df['bankroll'])
-    plt.xlabel("num_games")
-    plt.ylabel("bankroll")
-    plt.show()
+        print(df)
+        plt.scatter(df.index, df['bankroll'])
+        plt.xlabel("num_games")
+        plt.ylabel(strat)
+        plt.show()
 
-    print "\n>>> Thanks for playing at Oliver and Matt\'s Casino! <<<"
+        print "\n>>> Thanks for playing at Oliver and Matt\'s Casino! <<<"
 
 
 if __name__ == '__main__':
