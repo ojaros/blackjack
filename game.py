@@ -9,6 +9,9 @@ import pandas as pd
 
 strategies = ['basic', 'double_on_7or8', 'stand_on_sixteen']
 
+df = pd.DataFrame(
+    columns=['bankroll', 'starting_hand', 'num_hits', 'strategy'])
+
 
 class Game():
     def __init__(self):
@@ -145,7 +148,7 @@ class Game():
 
                     print("Your bankroll is now: %s" % player.bankroll)
                     df.loc[len(df.index)] = [player.bankroll,
-                                             player.hand.cards, num_hits]
+                                             player.hand.cards, num_hits, strat]
 
     def end_round(self):
         """ reset player bets, cards and check if game continues """
@@ -160,22 +163,20 @@ class Game():
 def main():
     print ">>> Welcome to Oliver and Matt's Blackjack Table. Advice is given out for free <<< \n"
     for strat in strategies:
-        print(strat)
-        df = pd.DataFrame(columns=['bankroll', 'starting_hand', 'num_hits'])
 
         game = Game()
 
         # instead of taking user input to keep goin, run 1000 times
-        for i in range(100):
+        for i in range(1000):
             game.start_round()
             game.play_round(strat, df)
             game.end_round()
 
         print(df)
-        plt.scatter(df.index, df['bankroll'])
-        plt.xlabel("num_games")
-        plt.ylabel(strat)
-        plt.show()
+        # plt.scatter(df.index, df['bankroll'])
+        # plt.xlabel("num_games")
+        # plt.ylabel(strat)
+        # plt.show()
 
         print "\n>>> Thanks for playing at Oliver and Matt\'s Casino! <<<"
 
